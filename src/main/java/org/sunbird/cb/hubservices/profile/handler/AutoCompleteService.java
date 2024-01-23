@@ -29,17 +29,17 @@ public class AutoCompleteService {
 
 	@Autowired
 	private RestHighLevelClient esClient;
-	final String[] includeFields = {"verifiedKarmayogi", "employmentDetails.departmentName", "personalDetails.firstname", "personalDetails.primaryEmail", "id", "professionalDetails.name"};
+	final String[] includeFields = {"profileDetails.employmentDetails.departmentName", "firstName", "lastName", "id", "profileDetails.professionalDetails.designation"};
 
 	public List<Map<String, Object>> getUserSearchData(String searchTerm) throws IOException {
 		if (StringUtils.isEmpty(searchTerm))
 			throw new BadRequestException("Search term should not be empty!");
 		List<Map<String, Object>> resultArray = new ArrayList<>();
-		Map<String, Object> result;
+//		Map<String, Object> result;
 		String depName;
 		final BoolQueryBuilder query = QueryBuilders.boolQuery();
-		query.should(QueryBuilders.matchPhrasePrefixQuery("personalDetails.primaryEmail", searchTerm))
-				.should(QueryBuilders.matchPhrasePrefixQuery("personalDetails.firstname", searchTerm));
+		query.should(QueryBuilders.matchPhrasePrefixQuery("email", searchTerm))
+				.should(QueryBuilders.matchPhrasePrefixQuery("firstName", searchTerm));
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().query(query);
 		sourceBuilder.fetchSource(includeFields, new String[] {});
 		SearchRequest searchRequest = new SearchRequest();
@@ -49,19 +49,34 @@ public class AutoCompleteService {
 		SearchResponse searchResponse = esClient.search(searchRequest, RequestOptions.DEFAULT);
 		for (SearchHit hit : searchResponse.getHits()) {
 			Map<String, Object> searObjectMap = hit.getSourceAsMap();
-			Map<String, Object> personalDetails = (Map<String, Object>) searObjectMap.get("personalDetails");
-			Map<String, Object> employmentDetails = (Map<String, Object>) searObjectMap.get("employmentDetails");
-			depName = "";
-			if (!CollectionUtils.isEmpty(employmentDetails)) {
-				depName = StringUtils.isEmpty(employmentDetails.get("departmentName")) ? ""
-						: (String) employmentDetails.get("departmentName");
+
+			// Extracting data from the Elasticsearch response
+			String firstName = (String) searObjectMap.get("firstName");
+			String lastName = (String) searObjectMap.get("lastName");
+			String id = (String) searObjectMap.get("id");
+			String departmentName = "";
+			String designation = "";
+			if (searObjectMap.get("profileDetails") != null){
+				Map<String, Object> profileDetails = (Map<String, Object>) searObjectMap.getOrDefault("profileDetails","");
+				if (profileDetails.get("employmentDetails") != null){
+					Map<String, Object> employmentDetails = (Map<String, Object>) profileDetails.getOrDefault("employmentDetails","");
+					departmentName = (String) employmentDetails.get("departmentName");
+				}
+				if (profileDetails.get("professionalDetails") != null){
+					List<Map<String, Object>> professionalDetailsList = (List<Map<String, Object>>) profileDetails.get("professionalDetails");
+					Map<String,Object> firstIndex = professionalDetailsList.get(0);
+					designation = (String) firstIndex.get("designation");
+				}
 			}
-			result = new HashMap<>();
-			result.put("first_name", personalDetails.get("firstname"));
-			result.put("email", personalDetails.get("primaryEmail"));
-			result.put("wid", searObjectMap.get("id"));
-			result.put("department_name", depName);
-			result.put("rank", hit.getScore());
+			Float rank = hit.getScore();
+			Map<String, Object> result = new HashMap<>();
+			result.put("first_name", firstName);
+			result.put("last_name", lastName);
+			result.put("wid", id);
+			result.put("department_name", departmentName);
+			result.put("designation", designation);
+			result.put("rank", rank);
+
 			resultArray.add(result);
 		}
 		return resultArray;
