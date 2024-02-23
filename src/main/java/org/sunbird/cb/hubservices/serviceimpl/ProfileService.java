@@ -58,7 +58,7 @@ public class ProfileService implements IProfileService {
 					Constants.Status.PENDING);
 			connectionIdsToExclude.add(userId);
 			connectionIdsToExclude.addAll(connectionIdsToExcludeForPending);
-			logger.info("multi search request :: {}", mSearchRequest.toString());
+			logger.info("multi search request :: {}", mSearchRequest.getSearch());
 
 			Map<String, Object> tagRes = iUserUtility.getUserInfoFromRedish(mSearchRequest, sourceFields, connectionIdsToExclude);
 			List<Object> finalRes = new ArrayList<>();
