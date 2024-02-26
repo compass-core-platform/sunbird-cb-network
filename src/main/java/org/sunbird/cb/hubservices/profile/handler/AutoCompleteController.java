@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AutoCompleteController {
 
-	@Autowired
-	AutoCompleteService autoCompleteService;
+    @Autowired
+    AutoCompleteService autoCompleteService;
 
-	@GetMapping("/v1/user/autocomplete")
-	public ResponseEntity<List<Map<String, Object>>> getUserSearchData(
-			@RequestParam("searchString") String searchString) throws Exception {
-		return new ResponseEntity<List<Map<String, Object>>>(autoCompleteService.getUserSearchData(searchString),
-				HttpStatus.OK);
-	}
+    @GetMapping("/v1/user/autocomplete")
+    public ResponseEntity<List<Map<String, Object>>> getUserSearchData(
+            @RequestParam("searchString") String searchString) throws Exception
+	{
+        return new ResponseEntity<List<Map<String, Object>>>(autoCompleteService.getUserSearchData(searchString), HttpStatus.OK);
+    }
 }
