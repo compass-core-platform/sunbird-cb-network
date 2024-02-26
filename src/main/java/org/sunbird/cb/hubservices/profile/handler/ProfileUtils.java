@@ -32,9 +32,13 @@ public class ProfileUtils {
 		List<String> userFields = new ArrayList<>();
 		userFields.add(Constants.PROFILE_DETAILS_PROFESSIOANAL_DETAILS);
 		userFields.add(Constants.PROFILE_DETAILS_EMPLOYMENT_DETAILS);
-		userFields.add(Constants.PROFILE_DETAILS_PERSONAL_DETAILS);
+//		userFields.add(Constants.PROFILE_DETAILS_PERSONAL_DETAILS);
 		userFields.add(Constants.PROFILE_DETAILS_VERIFIED_KARMAYOGI);
 		userFields.add(Constants.USER_ID);
+		userFields.add(Profile.USERNAME);
+		userFields.add(Profile.FIRSTNAME);
+		userFields.add(Profile.LASTNAME);
+
 		return userFields;
 	}
 
@@ -79,6 +83,10 @@ public class ProfileUtils {
 		public static final String ID = "id";
 		public static final String AT_ID = "@id";
 		public static final String USER_ID = "userId";
+		public static final String EMAIL = "email";
+		public static final String USERNAME = "userName";
+		public static final String FIRSTNAME = "firstName";
+		public static final String LASTNAME = "lastName";
 		public static final String OSID = "osid";
 		public static final String FILTERS = "filters";
 		public static final String REQUEST = "request";

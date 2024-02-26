@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,7 +209,7 @@ public class ConnectionService implements IConnectionService {
 		List<String> userIds = nodes.stream().map(Node::getId).collect(Collectors.toList());
 		Map<String, Node> nodeMap = nodes.stream().collect(Collectors.toMap(Node::getId, node -> node));
 
-		List<String> fields = Arrays.asList(Constants.ID, Constants.FIRST_NAME, Constants.STATUS, Constants.CHANNEL);
+		List<String> fields = Arrays.asList(Constants.ID, Constants.FIRST_NAME,Constants.LAST_NAME, Constants.STATUS, Constants.PROFILE_DETAILS);
 		Map<String, Object> propertyMap = new HashMap<>();
 		int loopSize = 50;
 		for (int i = 0; i < userIds.size(); i += loopSize) {
@@ -227,7 +228,18 @@ public class ConnectionService implements IConnectionService {
 						} else {
 							Node node = nodeMap.get(userId);
 							node.setFullName((String) user.get(Constants.FULL_NAME));
-							node.setDepartmentName((String) user.get(Constants.CHANNEL));
+							node.setFirstName((String) user.get(Constants.FULL_NAME));
+							node.setLastName((String) user.get(Constants.LAST_NAME));
+							ObjectMapper mapper = new ObjectMapper();
+							Map<String, Object> profileDetails = mapper.readValue((String) user.get(Constants.PROFILE_DETAILS), Map.class);
+							logger.debug("profile Details: " + profileDetails);
+							Map<String, Object> employmentDetails = (Map<String, Object>) profileDetails.get(Constants.EMPLOYMENT_DETAILS);
+							if (employmentDetails != null) {
+								String departmentName = (String) employmentDetails.get(Constants.DEPARTMENT_NAME);
+								if (departmentName != null) {
+									node.setDepartmentName(departmentName);
+								}
+							}
 						}
 					}
 				}

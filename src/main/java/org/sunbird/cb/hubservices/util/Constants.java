@@ -62,9 +62,16 @@ public class Constants {
 	public static final String EXCEPTION_MSG_FETCH = "Exception occurred while fetching record from ";
 	public static final String ID = "id";
 	public static final String FIRST_NAME = "firstname";
+	public static final String LAST_NAME = "lastname";
+	public static final String USER_NAME = "username";
+	public static final String PROFILE_DETAILS = "profiledetails";
+	public static final String DEPARTMENT_NAME = "departmentName";
+	public static final String EMPLOYMENT_DETAILS = "employmentDetails";
 	public static final String TABLE_USER = "user";
 	public static final String CHANNEL = "channel";
 	public static final String FULL_NAME = "fullName";
+	public static final String DESIGNATION = "designation";
+	public static final String WID = "wid";
 
 	public enum Graph {
 		ID("id"), STATUS(ResponseStatus.STATUS), UUID("UUID"), PROPS("props"), CREATED_AT("createdAt"), CONNECTION_ID("connectionId"),

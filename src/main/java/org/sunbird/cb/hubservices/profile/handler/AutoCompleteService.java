@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.sunbird.cb.hubservices.exception.BadRequestException;
 import org.sunbird.cb.hubservices.util.ConnectionProperties;
+import org.sunbird.cb.hubservices.util.Constants;
 
 @Service
 public class AutoCompleteService {
@@ -29,7 +30,7 @@ public class AutoCompleteService {
 
 	@Autowired
 	private RestHighLevelClient esClient;
-	final String[] includeFields = {"profileDetails.employmentDetails.departmentName", "firstName", "lastName", "id", "profileDetails.professionalDetails.designation"};
+	final String[] includeFields = {"profileDetails.employmentDetails.departmentName", ProfileUtils.Profile.FIRSTNAME, ProfileUtils.Profile.LASTNAME, ProfileUtils.Profile.ID, "profileDetails.professionalDetails.designation"};
 
 	public List<Map<String, Object>> getUserSearchData(String searchTerm) throws IOException {
 		if (StringUtils.isEmpty(searchTerm))
@@ -38,8 +39,8 @@ public class AutoCompleteService {
 //		Map<String, Object> result;
 		String depName;
 		final BoolQueryBuilder query = QueryBuilders.boolQuery();
-		query.should(QueryBuilders.matchPhrasePrefixQuery("email", searchTerm))
-				.should(QueryBuilders.matchPhrasePrefixQuery("firstName", searchTerm));
+		query.should(QueryBuilders.matchPhrasePrefixQuery(ProfileUtils.Profile.EMAIL, searchTerm))
+				.should(QueryBuilders.matchPhrasePrefixQuery(ProfileUtils.Profile.FIRSTNAME, searchTerm));
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().query(query);
 		sourceBuilder.fetchSource(includeFields, new String[] {});
 		SearchRequest searchRequest = new SearchRequest();
@@ -51,30 +52,30 @@ public class AutoCompleteService {
 			Map<String, Object> searObjectMap = hit.getSourceAsMap();
 
 			// Extracting data from the Elasticsearch response
-			String firstName = (String) searObjectMap.get("firstName");
-			String lastName = (String) searObjectMap.get("lastName");
-			String id = (String) searObjectMap.get("id");
+			String firstName = (String) searObjectMap.get(ProfileUtils.Profile.FIRSTNAME);
+			String lastName = (String) searObjectMap.get(ProfileUtils.Profile.LASTNAME);
+			String id = (String) searObjectMap.get(ProfileUtils.Profile.ID);
 			String departmentName = "";
 			String designation = "";
-			if (searObjectMap.get("profileDetails") != null){
-				Map<String, Object> profileDetails = (Map<String, Object>) searObjectMap.getOrDefault("profileDetails","");
-				if (profileDetails.get("employmentDetails") != null){
-					Map<String, Object> employmentDetails = (Map<String, Object>) profileDetails.getOrDefault("employmentDetails","");
-					departmentName = (String) employmentDetails.get("departmentName");
+			if (searObjectMap.get(ProfileUtils.Profile.PROFILE_DETAILS) != null){
+				Map<String, Object> profileDetails = (Map<String, Object>) searObjectMap.getOrDefault(ProfileUtils.Profile.PROFILE_DETAILS,"");
+				if (profileDetails.get(Constants.EMPLOYMENT_DETAILS) != null){
+					Map<String, Object> employmentDetails = (Map<String, Object>) profileDetails.getOrDefault(Constants.EMPLOYMENT_DETAILS,"");
+					departmentName = (String) employmentDetails.get(Constants.DEPARTMENT_NAME);
 				}
-				if (profileDetails.get("professionalDetails") != null){
-					List<Map<String, Object>> professionalDetailsList = (List<Map<String, Object>>) profileDetails.get("professionalDetails");
+				if (profileDetails.get(ProfileUtils.Profile.PROFESSIONAL_DETAILS) != null){
+					List<Map<String, Object>> professionalDetailsList = (List<Map<String, Object>>) profileDetails.get(ProfileUtils.Profile.PROFESSIONAL_DETAILS);
 					Map<String,Object> firstIndex = professionalDetailsList.get(0);
-					designation = (String) firstIndex.get("designation");
+					designation = (String) firstIndex.get(Constants.DESIGNATION);
 				}
 			}
 			Float rank = hit.getScore();
 			Map<String, Object> result = new HashMap<>();
-			result.put("first_name", firstName);
-			result.put("last_name", lastName);
-			result.put("wid", id);
-			result.put("department_name", departmentName);
-			result.put("designation", designation);
+			result.put(ProfileUtils.Profile.FIRSTNAME, firstName);
+			result.put(ProfileUtils.Profile.LASTNAME, lastName);
+			result.put(Constants.WID, id);
+			result.put(Constants.DEPARTMENT_NAME, departmentName);
+			result.put(Constants.DESIGNATION, designation);
 			result.put("rank", rank);
 
 			resultArray.add(result);

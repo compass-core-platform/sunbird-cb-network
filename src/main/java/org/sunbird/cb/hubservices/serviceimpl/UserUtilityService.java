@@ -113,6 +113,10 @@ public class UserUtilityService implements IUserUtility {
                     } else {
                         ((ObjectNode) profileDetails).put(Constants.VERIFIED_KARMAYOGI, Boolean.FALSE);
                     }
+                    ((ObjectNode) profileDetails).put(ProfileUtils.Profile.USERNAME, n.get(ProfileUtils.Profile.USERNAME).asText());
+                    ((ObjectNode) profileDetails).put(ProfileUtils.Profile.FIRSTNAME, n.get(ProfileUtils.Profile.FIRSTNAME).asText());
+                    ((ObjectNode) profileDetails).put(ProfileUtils.Profile.LASTNAME, n.get(ProfileUtils.Profile.LASTNAME).asText());
+
                     ((ObjectNode) profileDetails).put(ProfileUtils.Profile.USER_ID, n.get(ProfileUtils.Profile.USER_ID).asText());
                     ((ObjectNode) profileDetails).put(ProfileUtils.Profile.ID, n.get(ProfileUtils.Profile.USER_ID).asText());
                     ((ObjectNode) profileDetails).put(ProfileUtils.Profile.AT_ID, n.get(ProfileUtils.Profile.USER_ID).asText());
