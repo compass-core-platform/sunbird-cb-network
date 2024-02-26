@@ -14,6 +14,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +27,7 @@ import org.sunbird.cb.hubservices.util.Constants;
 @Service
 public class AutoCompleteService {
 
+	private Logger logger = LoggerFactory.getLogger(AutoCompleteService.class);
 	@Autowired
 	private ConnectionProperties connectionProperties;
 
@@ -36,23 +39,26 @@ public class AutoCompleteService {
 		if (StringUtils.isEmpty(searchTerm))
 			throw new BadRequestException("Search term should not be empty!");
 		List<Map<String, Object>> resultArray = new ArrayList<>();
-//		Map<String, Object> result;
-		String depName;
+
 		final BoolQueryBuilder query = QueryBuilders.boolQuery();
 		query.should(QueryBuilders.matchPhrasePrefixQuery(ProfileUtils.Profile.EMAIL, searchTerm))
 				.should(QueryBuilders.matchPhrasePrefixQuery(ProfileUtils.Profile.FIRSTNAME, searchTerm));
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().query(query);
+		logger.info("Auto complete search fields", includeFields);
 		sourceBuilder.fetchSource(includeFields, new String[] {});
 		SearchRequest searchRequest = new SearchRequest();
 		searchRequest.indices(connectionProperties.getEsProfileIndex());
 		searchRequest.types(connectionProperties.getEsProfileIndexType());
 		searchRequest.source(sourceBuilder);
+		logger.info("Auto complete searchRequest", searchRequest);
 		SearchResponse searchResponse = esClient.search(searchRequest, RequestOptions.DEFAULT);
+		logger.info("Auto complete es response", searchResponse);
 		for (SearchHit hit : searchResponse.getHits()) {
 			Map<String, Object> searObjectMap = hit.getSourceAsMap();
 
 			// Extracting data from the Elasticsearch response
 			String firstName = (String) searObjectMap.get(ProfileUtils.Profile.FIRSTNAME);
+			logger.info("Auto complete response firstname", firstName);
 			String lastName = (String) searObjectMap.get(ProfileUtils.Profile.LASTNAME);
 			String id = (String) searObjectMap.get(ProfileUtils.Profile.ID);
 			String departmentName = "";
@@ -80,6 +86,7 @@ public class AutoCompleteService {
 
 			resultArray.add(result);
 		}
+		logger.info("Auto complete result ",resultArray);
 		return resultArray;
 	}
 }
