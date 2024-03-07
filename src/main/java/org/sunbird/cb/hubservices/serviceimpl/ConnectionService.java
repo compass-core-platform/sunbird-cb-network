@@ -61,7 +61,9 @@ public class ConnectionService implements IConnectionService {
 					relationshipProperties.put(Constants.STATUS, Constants.FAILED);
 					response.put(Constants.ResponseStatus.STATUS, HttpStatus.INTERNAL_SERVER_ERROR);
 				}
-				if (connectionProperties.isNotificationEnabled()) {
+//				if (connectionProperties.isNotificationEnabled()) {
+				if (true) {
+					logger.info("inside is notification enabled ");
 					sendNotification(connectionProperties.getNotificationTemplateRequest(), from.getId(), to.getId(),
 							relationshipProperties.get(Constants.STATUS));
 				}

@@ -122,6 +122,7 @@ public class NotificationService implements INotificationService {
 			final String uri = connectionProperties.getNotificationIp()
 					.concat(connectionProperties.getNotificationEventEndpoint());
 			RestTemplate restTemplate = new RestTemplate();
+			logger.info("uri = "+uri);
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("Content-Type", "application/json");
 			logger.info(String.format("Notification event v2 value :: %s", notificationEventv2));
