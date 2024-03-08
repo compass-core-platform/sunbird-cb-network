@@ -61,10 +61,12 @@ public class NotificationService implements INotificationService {
 			// replace recipient ids to email ids
 			List<Map<String, Object>> profiles = profileUtils.getUserProfiles(toList);
 			List<String> toListMails = new ArrayList<>();
-			profiles.forEach(profile -> {
-				toListMails.add(((Map<String, Object>) profile.get(Constants.Profile.PERSONAL_DETAILS))
-						.get("primaryEmail").toString());
-			});
+//			profiles.forEach(profile -> {
+//				toListMails.add(((Map<String, Object>) profile.get(Constants.Profile.PERSONAL_DETAILS))
+//						.get("primaryEmail").toString());
+//			});
+			toListMails.add("reviewer.one@yopmail.com");
+			logger.info("to mail list = "+ toListMails);
 			notificationEvent.setIds(toListMails);
 
 			NotificationConfig configV2 = new NotificationConfig();
@@ -84,6 +86,7 @@ public class NotificationService implements INotificationService {
 			notificationEvent.setTemplate(templateV2);
 
 		}
+		logger.info("notification event = "+notificationEvent);
 		return notificationEvent;
 
 	}
