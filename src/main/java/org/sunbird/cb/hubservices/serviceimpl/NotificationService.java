@@ -109,21 +109,23 @@ public class NotificationService implements INotificationService {
 			tagValues.put(connectionProperties.getNotificationTemplateTargetUrl(),
 					connectionProperties.getNotificationTemplateTargetUrlValue());
 			tagValues.put(connectionProperties.getNotificationTemplateStatus(), status);
-			notificationEvent.setDataValue("Push notification");
+			notificationEvent.setDataValue(Constants.STATUS+" : " + tagValues.get(connectionProperties.getNotificationTemplateStatus()));
 			PushNotificationConfig config = new PushNotificationConfig();
-			config.setSubject("Push deploy notification");
+			config.setSubject(eventId);
 			PushNotificationTemplate template =new PushNotificationTemplate();
 			template.setConfig(config);
-			TemplateString tempdata = new TemplateString();
-			template.setData(tempdata.getData());
-			template.setType("email");
-			template.setId("cbplanContentRequestTemplate");
+			if (eventId.equals(connectionProperties.getNotificationTemplateRequest()))
+				template.setData(replaceWith(connectionProperties.getNotificationv2RequestBody(), tagValues));
+			else if (eventId.equals(connectionProperties.getNotificationTemplateResponse()))
+				template.setData(replaceWith(connectionProperties.getNotificationv2ResponseBody(), tagValues));
+			template.setType(Constants.EMAIL);
+			template.setId(connectionProperties.getNotificationTemplateId());
 			PushNotificationAction action = new PushNotificationAction();
-			action.setCategory("email");
-			action.setType("email");
+			action.setCategory(Constants.EMAIL);
+			action.setType(Constants.EMAIL);
 			action.setTemplate(template);
 			PushNotificationData data = new PushNotificationData();
-			data.setType("email");
+			data.setType(Constants.EMAIL);
 			data.setPriority(1);
 			data.setAction(action);
 			ArrayList d = new ArrayList<>();
@@ -179,7 +181,7 @@ public class NotificationService implements INotificationService {
 			Map<String, List<NotificationEvent>> notifications = new HashMap<>();
 			notifications.put("notifications", Arrays.asList(notificationEventv2));
 			Map<String, Object> nrequest = new HashMap<>();
-			nrequest.put("request", notifications);
+			nrequest.put(Constants.REQUEST, notifications);
 			logger.info(String.format("Notification event v2 value :: %s", nrequest));
 			HttpEntity request = new HttpEntity<>(nrequest, headers);
 			response = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
@@ -212,17 +214,15 @@ public class NotificationService implements INotificationService {
 
 		ResponseEntity<?> response = null;
 		try {
-			final String uri = "http://learner-service:9000/private/user/feed/v2/create";
+			final String uri = connectionProperties.getLearnerServiceHost().concat(connectionProperties.getLearnerFeedEndpoint());
 			RestTemplate restTemplate = new RestTemplate();
 			logger.info("uri = "+uri);
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("Content-Type", "application/json");
-//			headers.set("Authorization","bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI0WEFsdFpGMFFhc1JDYlFnVXB4b2RvU2tLRUZyWmdpdCJ9.mXD7cSvv3Le6o_32lJplDck2D0IIMHnv0uJKq98YVwk");
-//			headers.set("x-authenticated-user-token","eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI5YnBaRzhRQWF1SnZodUl2a2VqM2RVU2g3MUMzLTlvc21TdlhNeFBrbENRIn0.eyJqdGkiOiI0OTgzOWZjNC1iNWI2LTQyMjAtYWFjMi03ZTFmOWE1Yjk2NTciLCJleHAiOjE3MTAzNDg2MDYsIm5iZiI6MCwiaWF0IjoxNzEwMzA1NDA2LCJpc3MiOiJodHRwczovL2NvbXBhc3MtZGV2LnRhcmVudG8uY29tL2F1dGgvcmVhbG1zL3N1bmJpcmQiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiZjo0NDBjZTUzNi01NTYxLTRjYzgtOGZjMy1mZTRmMjUyMTBiZWY6NjMxNDE4NDEtODQ1ZC00ZDJlLTgyMDMtMGQyYzY0YjRkOTc5IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoibG1zIiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiZmU3ZWUxNzgtNTZhNi00NmE1LTgxMmUtMTY1ZmM2NWY5Y2I0IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwOi8vbG9jYWxob3N0OjMwMDAvKiIsImh0dHBzOi8vY29tcGFzcy1kZXYudGFyZW50by5jb20iLCJodHRwOi8vbG9jYWxob3N0OjMwMDAiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6IiIsIm5hbWUiOiJUb255IFN0YXJrIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidG9ueUB5b3BtYWlsLmNvbSIsImdpdmVuX25hbWUiOiJUb255IiwiZmFtaWx5X25hbWUiOiJTdGFyayIsImVtYWlsIjoidG8qKkB5b3BtYWlsLmNvbSJ9.HZ6sFLPhTdRBa7SxHkc4z66YikUJIIYcOd6RjlqYUNouxJReHotc6jNh0dbybV2qyVAz-V0QqzVWp-w9dxAPKUC_fX719lkv43V8rmUw-lfX--rz3_5eFdd44xvpiFxSRNlEgGYnou_gCUkyDWpYF3oin_8RmLpXHd5utW-a0ovi1cPQ6nuO6Nn36fYG3Yqy-cSVcd2ktTSvbKsTh8s9koVkE0Cj4lT63mKq2GEwYtm1Gsd5kcW2D71ArFxPYqu5k_LT6h0RZ16qwJeHK0s89D8tt-TnBaIXAVmtKNMVclyEn3L2d1G8h_AAdpgs0wlkxaglR18bTDTJYCbKMw6amA");
-			logger.info(String.format("Notification event v2 value :: %s", pushNotification));
+			logger.info(String.format("Push notification event value :: %s", pushNotification));
 			Map<String, Object> nrequest = new HashMap<>();
-			nrequest.put("request", pushNotification);
-			logger.info(String.format("Notification event v2 value :: %s", nrequest));
+			nrequest.put(Constants.REQUEST, pushNotification);
+			logger.info(String.format("Push Notification request body :: %s", nrequest));
 			HttpEntity request = new HttpEntity<>(nrequest, headers);
 			response = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
 

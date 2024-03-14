@@ -63,6 +63,12 @@ public class ConnectionProperties {
 	@Value("${notification.template.v2.id}")
 	private String notificationv2Id;
 
+	public String getNotificationTemplateId() {
+		return notificationTemplateId;
+	}
+
+	@Value("${notification.template.push.id}")
+	private String notificationTemplateId;
 	@Value("${notification.template.v2.delivery.type}")
 	private String notificationv2DeliveryType;
 
@@ -83,6 +89,9 @@ public class ConnectionProperties {
 
 	@Value("${sunbird.user.search.endpoint}")
 	private String userSearchEndPoint;
+
+	@Value("${sunbird.feed.endpoint}")
+	private String learnerFeedEndpoint;
 
 	@Value("${sunbird.user.update.endpoint}")
 	private String userUpdateEndPoint;
@@ -200,5 +209,8 @@ public class ConnectionProperties {
 
 	public int getMaxNodeSize() {
 		return maxNodeSize;
+	}
+	public String getLearnerFeedEndpoint() {
+		return learnerFeedEndpoint;
 	}
 }
