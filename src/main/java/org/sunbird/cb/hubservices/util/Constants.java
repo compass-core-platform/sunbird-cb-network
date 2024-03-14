@@ -7,8 +7,11 @@ public class Constants {
 	public static final String OFFSET = "offset";
 	public static final String LIMIT = "limit";
 	public static final String USER_ID = "userId";
+	public static final String EMAIL = "email";
+
 	public static final String ACCEPT = "Accept";
 	public static final String RESPONSE = "response";
+	public static final String REQUEST = "request";
 	public static final String OSID = "osid";
 	public static final String PROFILE_DETAILS_PROFESSIOANAL_DETAILS = "profileDetails.professionalDetails";
 	public static final String PROFILE_DETAILS_EMPLOYMENT_DETAILS = "profileDetails.employmentDetails";
