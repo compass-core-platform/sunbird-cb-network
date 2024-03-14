@@ -163,6 +163,7 @@ public class ProfileUtils {
 		HttpHeaders requestHeaders = new HttpHeaders();
 		Map<String, Object> request = getSearchObject(userIds);
 		requestHeaders.add(Constants.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+		requestHeaders.add("Authorization", "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI0WEFsdFpGMFFhc1JDYlFnVXB4b2RvU2tLRUZyWmdpdCJ9.mXD7cSvv3Le6o_32lJplDck2D0IIMHnv0uJKq98YVwk");
 		HttpEntity<Object> requestEntity = new HttpEntity<>(request, requestHeaders);
 		builder.append(connectionProperties.getLearnerServiceHost())
 				.append(connectionProperties.getUserSearchEndPoint());

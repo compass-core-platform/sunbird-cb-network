@@ -38,7 +38,9 @@ public interface IConnectionService {
 	 */
 	void sendNotification(String eventId, String sender, String reciepient, String status);
 
-	/**
+    void sendNewNotification(String eventId, String sender, String reciepient, String status);
+
+    /**
 	 * Find all userids which are connected or Approved to this userId/NodeId
 	 * @param userId
 	 * @param status

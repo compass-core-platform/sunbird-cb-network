@@ -17,10 +17,7 @@ import org.sunbird.cb.hubservices.cassandra.CassandraOperation;
 import org.sunbird.cb.hubservices.exception.ApplicationException;
 import org.sunbird.cb.hubservices.exception.BadRequestException;
 import org.sunbird.cb.hubservices.exception.ValidationException;
-import org.sunbird.cb.hubservices.model.ConnectionRequest;
-import org.sunbird.cb.hubservices.model.Node;
-import org.sunbird.cb.hubservices.model.NotificationEvent;
-import org.sunbird.cb.hubservices.model.Response;
+import org.sunbird.cb.hubservices.model.*;
 import org.sunbird.cb.hubservices.service.IConnectionService;
 import org.sunbird.cb.hubservices.service.INodeService;
 import org.sunbird.cb.hubservices.util.ConnectionProperties;
@@ -64,7 +61,9 @@ public class ConnectionService implements IConnectionService {
 //				if (connectionProperties.isNotificationEnabled()) {
 				if (true) {
 					logger.info("inside is notification enabled ");
-					sendNotification(connectionProperties.getNotificationTemplateRequest(), from.getId(), to.getId(),
+//					sendNotification(connectionProperties.getNotificationTemplateRequest(), from.getId(), to.getId(),
+//							relationshipProperties.get(Constants.STATUS));
+					sendNewNotification(connectionProperties.getNotificationTemplateRequest(), from.getId(), to.getId(),
 							relationshipProperties.get(Constants.STATUS));
 				}
 			} catch (ValidationException ve) {
@@ -87,6 +86,12 @@ public class ConnectionService implements IConnectionService {
 	public void sendNotification(String eventId, String sender, String reciepient, String status) {
 		NotificationEvent event = notificationService.buildEvent(eventId, sender, reciepient, status);
 		notificationService.postEvent(event);
+	}
+	@Override
+	public void sendNewNotification(String eventId, String sender, String reciepient, String status) {
+		PushNotification event1 = notificationService.buildNewEvent(eventId, sender, reciepient, status);
+		logger.info("event builder : " + event1);
+		notificationService.postNewEvent(event1);
 	}
 
 	@Override
