@@ -90,7 +90,7 @@ public class ConnectionService implements IConnectionService {
 	@Override
 	public void sendNewNotification(String eventId, String sender, String reciepient, String status) {
 		PushNotification event1 = notificationService.buildNewEvent(eventId, sender, reciepient, status);
-		logger.info("event builder : " + event1);
+		logger.info("event builder : " + event1.toString());
 		notificationService.postNewEvent(event1);
 	}
 
