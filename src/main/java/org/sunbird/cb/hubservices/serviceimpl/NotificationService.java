@@ -109,7 +109,7 @@ public class NotificationService implements INotificationService {
 			tagValues.put(connectionProperties.getNotificationTemplateTargetUrl(),
 					connectionProperties.getNotificationTemplateTargetUrlValue());
 			tagValues.put(connectionProperties.getNotificationTemplateStatus(), status);
-			notificationEvent.setDataValue(Constants.STATUS+" : " + tagValues.get(connectionProperties.getNotificationTemplateStatus()));
+			notificationEvent.setDataValue("Push notification");
 			PushNotificationConfig config = new PushNotificationConfig();
 			config.setSubject(eventId);
 			PushNotificationTemplate template =new PushNotificationTemplate();
@@ -219,11 +219,12 @@ public class NotificationService implements INotificationService {
 			logger.info("uri = "+uri);
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("Content-Type", "application/json");
-			logger.info(String.format("Push notification event value :: %s", pushNotification));
+			logger.info(String.format("Push notification event value :: %s", pushNotification.toString()));
 			Map<String, Object> nrequest = new HashMap<>();
 			nrequest.put(Constants.REQUEST, pushNotification);
 			logger.info(String.format("Push Notification request body :: %s", nrequest));
 			HttpEntity request = new HttpEntity<>(nrequest, headers);
+			logger.info(" learner request = "+ request.getBody().toString());
 			response = restTemplate.exchange(uri, HttpMethod.POST, request, String.class);
 
 			logger.info(Constants.Message.SENT_NOTIFICATION_SUCCESS, response.getStatusCode());
